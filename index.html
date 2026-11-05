@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rakion Nostalgia</title>
+<meta name="description" content="Rakion Nostalgia: servidor privado de Rakion clásico entre amigos. Beta de pruebas abierta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=Nunito+Sans:wght@400;700;800&display=swap">
+<style>
+/* Layout: un mundo de lava vivo detras (canvas a pantalla completa con montanas, rios de lava, brasas y un dragon propio
+   que cruza el cielo); el contenido flota encima en placas de obsidiana con borde de oro. */
+:root{color-scheme:dark;
+  --deco:"Cinzel Decorative","Cinzel",Georgia,serif;--display:"Cinzel",Georgia,serif;--body:"Nunito Sans",system-ui,"Segoe UI",Arial,sans-serif;
+  --ink:#0d0403;--obsidiana:rgba(22,7,5,.78);--obsidiana2:rgba(40,12,8,.86);--lava:#ff6a1a;--lava2:#ffb347;--oro:#ffd36a;--sangre:#b3200e;
+  --texto:#fbeee4;--suave:#e2c6b2;--borde:rgba(255,190,110,.28)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0}
+body{background:var(--ink);color:var(--texto);font:17px/1.65 var(--body);overflow-x:hidden}
+#mundo{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.capa{position:relative;z-index:1}
+a{color:var(--lava2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--oro);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#1a0705}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(180deg,rgba(20,6,4,.92),rgba(20,6,4,.72));backdrop-filter:blur(8px);border-bottom:1px solid var(--borde)}
+header .wrap{display:flex;align-items:center;gap:18px;min-height:60px;flex-wrap:wrap;padding-block:6px}
+.marca{font-family:var(--deco);font-weight:900;font-size:22px;letter-spacing:.04em;text-decoration:none;color:var(--texto);white-space:nowrap}
+.marca span{background:linear-gradient(180deg,var(--oro),var(--lava));-webkit-background-clip:text;background-clip:text;color:transparent}
+.marca em{font:800 11px var(--body);font-style:normal;background:var(--lava);color:#2a0802;padding:2px 7px;border-radius:3px;margin-left:8px;vertical-align:4px;letter-spacing:.08em}
+nav{margin-left:auto;display:flex;flex-wrap:wrap;gap:2px}
+nav a{color:var(--suave);text-decoration:none;font:700 14px var(--body);padding:7px 11px;border-radius:6px;letter-spacing:.02em}
+nav a:hover{color:#fff;background:rgba(255,106,26,.18)}
+nav a.cta{background:linear-gradient(180deg,var(--lava2),var(--lava));color:#2a0802}
+
+.hero{min-height:min(92vh,760px);display:grid;place-items:center;text-align:center;padding-block:70px 40px}
+.sello{font:800 13px var(--body);letter-spacing:.32em;color:var(--oro);text-transform:uppercase}
+.hero h1{font-family:var(--deco);font-weight:900;font-size:clamp(46px,9vw,112px);line-height:.95;margin:.18em 0 .2em;text-wrap:balance;
+  background:linear-gradient(180deg,#fff6d8 0%,var(--oro) 38%,var(--lava) 70%,var(--sangre) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 22px rgba(255,90,20,.45))}
+.hero p{max-width:640px;margin:0 auto 30px;color:var(--suave);font-size:19px}
+.btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:8px;font:800 16px var(--body);text-decoration:none;letter-spacing:.03em;
+  background:linear-gradient(180deg,var(--lava2),var(--lava) 55%,#d4440c);color:#2a0802;box-shadow:0 0 0 1px #ffd9a0 inset,0 10px 30px rgba(255,90,20,.35);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 0 1px #fff0d0 inset,0 14px 40px rgba(255,110,30,.55)}
+.btn.alt{background:rgba(20,6,4,.6);color:var(--oro);box-shadow:0 0 0 1px var(--borde) inset}
+.aviso{margin:34px auto 0;max-width:720px;background:var(--obsidiana2);border:1px solid var(--oro);border-radius:10px;padding:14px 18px;color:#ffe9b8;font-size:16px}
+.cifras{display:flex;justify-content:center;gap:34px;flex-wrap:wrap;margin-top:34px}
+.cifras div{text-align:center}
+.cifras b{display:block;font:900 34px var(--display);color:var(--oro);font-variant-numeric:tabular-nums}
+.cifras span{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--suave)}
+
+section{padding-block:56px}
+.placa{background:var(--obsidiana);border:1px solid var(--borde);border-radius:14px;padding:clamp(20px,4vw,38px);backdrop-filter:blur(6px);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+h2{font-family:var(--deco);font-weight:900;font-size:clamp(28px,4.4vw,44px);margin:0 0 6px;text-wrap:balance;color:var(--oro)}
+.sub{margin:0 0 26px;color:var(--suave);max-width:62ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.carta{position:relative;min-width:0;background:linear-gradient(160deg,rgba(70,18,10,.9),rgba(24,7,5,.92));border:1px solid var(--borde);border-radius:12px;padding:18px;overflow:hidden;transition:transform .2s,border-color .2s}
+.carta:hover{transform:translateY(-3px);border-color:var(--lava2)}
+.carta canvas{display:block;width:100%;height:130px;border-radius:8px;margin-bottom:12px;background:#140504}
+.carta h3{margin:0 0 6px;font:800 19px var(--display);color:#fff0d2}
+.carta p{margin:0;color:var(--suave);font-size:15px}
+
+.noticias{display:grid;gap:12px}
+.noticia{display:grid;grid-template-columns:110px 1fr;gap:4px 18px;padding:14px 0;border-bottom:1px solid var(--borde)}
+.noticia:last-child{border-bottom:0}
+.noticia time{grid-row:span 2;font:800 14px var(--body);color:var(--lava2);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.noticia h3{margin:0;font:800 18px var(--display)}
+.noticia p{margin:0;color:var(--suave)}
+
+.pasos{counter-reset:p;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.pasos li{counter-increment:p;position:relative;min-width:0;background:rgba(30,9,6,.85);border:1px solid var(--borde);border-radius:12px;padding:52px 18px 18px}
+.pasos li::before{content:counter(p);position:absolute;top:14px;left:18px;font:900 26px var(--deco);color:var(--lava)}
+.pasos b{color:#fff0d2}
+
+.tier{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--borde)}
+.tier:last-child{border-bottom:0}
+.tier strong{font:900 15px var(--display);letter-spacing:.14em;color:var(--lava2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--borde);background:rgba(255,120,40,.08);border-radius:999px;padding:5px 13px;font-size:14px;font-weight:700}
+
+.bot{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:28px;align-items:center}
+.bot canvas{width:100%;aspect-ratio:1;border-radius:50%;box-shadow:0 0 60px rgba(255,90,20,.35)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--borde);vertical-align:top}
+th{color:var(--oro);font:800 14px var(--body);letter-spacing:.06em;white-space:nowrap;padding-right:18px}
+
+details{border-bottom:1px solid var(--borde);padding:12px 0}
+summary{cursor:pointer;font:800 17px var(--display)}
+details p{color:var(--suave);margin:8px 0 0}
+footer{padding-block:34px 44px;text-align:center;color:var(--suave);font-size:14px}
+footer a{margin:0 8px}
+
+.revela{opacity:1;transform:none;transition:opacity .7s,transform .7s}
+.js .revela.fuera{opacity:.001;transform:translateY(24px)}
+@media (max-width:700px){.bot{grid-template-columns:1fr}.bot canvas{max-width:240px;margin:0 auto}.tier{grid-template-columns:1fr}.noticia{grid-template-columns:1fr}.noticia time{grid-row:auto}nav{margin-left:0}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.js .revela.fuera{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="mundo" aria-hidden="true"></canvas>
+<div class="capa">
+<header><div class="wrap">
+  <a class="marca" href="#inicio">Rakion <span>Nostalgia</span><em>BETA</em></a>
+  <nav>
+    <a href="#noticias">Noticias</a><a href="#servidor">El servidor</a><a href="#items">Ítems</a><a href="#modos">Modos</a>
+    <a href="#reglas">Reglas</a><a href="#avances">Avances</a><a href="#futuro">Futuro</a><a class="cta" href="#jugar">Jugar</a>
+  </nav>
+</div></header>
+
+<main>
+<div class="wrap hero" id="inicio">
+  <div>
+    <div class="sello">Servidor privado · Rakion clásico</div>
+    <h1>Vuelve a la arena</h1>
+    <p>Sets clásicos, refinería +20, sockets, crías y PvP de verdad. Sin pagar para ganar, entre amigos, como en los viejos tiempos.</p>
+    <div class="btns">
+      <a class="btn" href="#jugar">Empezar a jugar</a>
+      <a class="btn alt" href="https://discord.gg/ujHwymcqG">Entrar al Discord</a>
+    </div>
+    <div class="cifras">
+      <div><b>18</b><span>sets clásicos</span></div>
+      <div><b>+20</b><span>refinería</span></div>
+      <div><b>6</b><span>sockets por prenda</span></div>
+      <div><b>5</b><span>modos de juego</span></div>
+    </div>
+    <div class="aviso"><b>Beta de pruebas abierta.</b> Oro casi ilimitado en cada cuenta para probarlo todo. <b>Las cuentas de la beta se borran al empezar la Temporada 1.</b></div>
+  </div>
+</div>
+
+<section id="noticias"><div class="wrap"><div class="placa revela">
+  <h2>Noticias</h2>
+  <p class="sub">Lo último del servidor.</p>
+  <div class="noticias">
+    <div class="noticia"><time>03.11.2026</time><h3>Abre la beta de pruebas</h3><p>Cada cuenta recibe oro casi ilimitado. Reporta en el Discord todo lo que encuentres.</p></div>
+    <div class="noticia"><time>03.11.2026</time><h3>Registro abierto</h3><p>Crea hasta 3 cuentas por conexión desde la red del servidor.</p></div>
+    <div class="noticia"><time>03.11.2026</time><h3>Antitrampas activo</h3><p>El juego se revisa al entrar: archivos modificados, Cheat Engine o speedhack significan expulsión y baneo de la PC.</p></div>
+    <div class="noticia"><time>02.11.2026</time><h3>Refinería clásica y sockets</h3><p>Hasta +20, probar suerte, desintegrar y 6 sockets por prenda con gemas D a S.</p></div>
+    <div class="noticia"><time>01.11.2026</time><h3>Sets clásicos con bonos</h3><p>18 sets con roles y bonos a las 2, 4 y 6 piezas, y joyería con efectos.</p></div>
+  </div>
+</div></div></section>
+
+<section id="jugar"><div class="wrap"><div class="placa revela">
+  <h2>Cómo jugar</h2>
+  <p class="sub">En la beta el servidor corre en una PC de casa y se entra por una red privada gratis (Radmin VPN). El instalador te guía.</p>
+  <ol class="pasos">
+        <li><b>Descarga el instalador</b> <a href="https://drive.google.com/drive/folders/1Z18BiNTMaRgSfqZAM0_v6Kxh0sniZfEe">desde Google Drive</a>: el archivo <b>Instalar Rakion Nostalgia.exe</b> (unos 55 MB).</li>
+    <li><b>Ábrelo y pulsa INSTALAR.</b> Si hace falta, te instala <b>Radmin VPN</b> (gratis) y te muestra el nombre y la contraseña de la red con botones para copiarlos. Acepta todo.</li>
+    <li><b>En Radmin VPN</b>: Red &rsaquo; Unirse a una red existente, pega los datos y vuelve al instalador. El juego se descarga solo.</li>
+    <li><b>Crea tu cuenta</b> en el launcher (botón Registro) y a jugar.</li>
+  </ol>
+</div></div></section>
+
+<section id="servidor"><div class="wrap"><div class="placa revela">
+  <h2>Lo que tiene el servidor</h2>
+  <p class="sub">Todo lo clásico, con lo que siempre le faltó.</p>
+  <div class="grid">
+    <div class="carta"><canvas data-arte="refineria"></canvas><h3>Refinería clásica</h3><p>Hasta +20, desintegra lo que no uses, prueba suerte y abre sockets con el martillo.</p></div>
+    <div class="carta"><canvas data-arte="gemas"></canvas><h3>Sockets y gemas</h3><p>6 sockets por prenda: 2 redondos, 2 cuadrados y 2 rombos. Gemas de energía, armadura y cell, de la D a la S.</p></div>
+    <div class="carta"><canvas data-arte="crias"></canvas><h3>Crías clásicas</h3><p>Las crías de siempre en la tienda, con una IA que persigue, salta obstáculos y se retira.</p></div>
+    <div class="carta"><canvas data-arte="bots"></canvas><h3>Bots por dificultad</h3><p>Desde tu sala, Add Bot: fácil, normal, difícil, máximo o latino.</p></div>
+    <div class="carta"><canvas data-arte="escudo"></canvas><h3>Antitrampas</h3><p>Archivos revisados, valores bloqueados y detector de herramientas. Juego limpio para todos.</p></div>
+    <div class="carta"><canvas data-arte="tienda"></canvas><h3>Tienda Clásico</h3><p>Un botón deja la tienda solo con lo clásico. Lo Latino queda como apariencia.</p></div>
+  </div>
+</div></div></section>
+
+<section id="items"><div class="wrap"><div class="placa revela">
+  <h2>Ítems y sets</h2>
+  <p class="sub">Cada set tiene un rol y bonos por piezas: robo de vida, congelar, velocidad, miedo y más.</p>
+  <div class="tier"><strong>INICIO</strong><div class="chips"><span class="chip">Mercenario</span><span class="chip">Advance</span><span class="chip">Waclock</span></div></div>
+  <div class="tier"><strong>MEDIO</strong><div class="chips"><span class="chip">Knight</span><span class="chip">Dark Knight</span><span class="chip">Acute</span><span class="chip">Bone</span><span class="chip">Black Hound</span><span class="chip">Homen</span></div></div>
+  <div class="tier"><strong>ALTO</strong><div class="chips"><span class="chip">Runet</span><span class="chip">Hound</span><span class="chip">Frozen</span><span class="chip">Master</span><span class="chip">Divinity</span><span class="chip">Meteor</span><span class="chip">Aqua</span><span class="chip">Hurricane</span><span class="chip">Damned</span></div></div>
+  <div class="tier"><strong>JOYERÍA</strong><div class="chips"><span class="chip">Collares por niveles</span><span class="chip">Anillos por niveles</span><span class="chip">Caos</span><span class="chip">Luz sagrada</span><span class="chip">Lentitud</span><span class="chip">Maldición</span><span class="chip">Miedo</span></div></div>
+</div></div></section>
+
+<section id="modos"><div class="wrap"><div class="placa revela">
+  <h2>Modos de juego</h2>
+  <p class="sub">Elige cómo pelear.</p>
+  <div class="grid">
+    <div class="carta"><canvas data-arte="solo"></canvas><h3>Combate Solo</h3><p>Todos contra todos. Gana quien llega primero a las bajas.</p></div>
+    <div class="carta"><canvas data-arte="equipo"></canvas><h3>Combate en Equipo</h3><p>Rojo contra azul, hasta 6 por lado.</p></div>
+    <div class="carta"><canvas data-arte="lider"></canvas><h3>Gran Líder</h3><p>Protege a tu líder y derriba al del rival.</p></div>
+    <div class="carta"><canvas data-arte="golem"></canvas><h3>Golem</h3><p>Cada equipo con su golem gigante al frente.</p></div>
+    <div class="carta"><canvas data-arte="stage"></canvas><h3>Stage</h3><p>Mazmorras contra monstruos, abiertas del 1 al 99.</p></div>
+  </div>
+  <div class="bot" style="margin-top:34px">
+    <canvas id="sello" width="560" height="560" aria-label="Emblema del BotLatino"></canvas>
+    <div>
+      <h3 style="font:900 26px var(--deco);color:var(--oro);margin:0 0 8px">Reta al BotLatino</h3>
+      <p style="margin:0 0 14px;color:var(--suave)">Vive en su sala fija, <b>"BotLatino sin crias"</b>, en Combate Solo. Entra, marca Listo y pelea: sin crías, puro combate.</p>
+      <table>
+        <tr><th>Equipo</th><td>Set latino +20 con Bless Legenda y 6 gemas S</td></tr>
+        <tr><th>Efectos</th><td>Confusión, lentitud, robo de vida, miedo y congelar</td></tr>
+        <tr><th>IA</th><td>Experto: esquiva, agarra, embiste y usa pociones</td></tr>
+      </table>
+    </div>
+  </div>
+</div></div></section>
+
+<section id="reglas"><div class="wrap"><div class="placa revela">
+  <h2>Reglas del servidor</h2>
+  <p class="sub">Para que la diversión dure.</p>
+  <div class="grid">
+    <div class="carta"><h3>Sin trampas</h3><p>Editar archivos (FOV, scripts), Cheat Engine, speedhack o hacks de agarre: expulsión y baneo de la cuenta y de la PC.</p></div>
+    <div class="carta"><h3>Respeto</h3><p>Nada de insultos, acoso ni spam en el juego ni en el Discord.</p></div>
+    <div class="carta"><h3>Cuentas personales</h3><p>No se venden ni se comparten cuentas. Hasta 3 por conexión en la beta.</p></div>
+    <div class="carta"><h3>Reporta los fallos</h3><p>Si algo falla, avísalo en el Discord con una captura. Abusar de un fallo es trampa.</p></div>
+  </div>
+</div></div></section>
+
+<section id="avances"><div class="wrap"><div class="placa revela">
+  <h2>Lo que hicimos con el cliente original</h2>
+  <p class="sub">Partimos del cliente clásico de Rakion (versión 258, de 2007). Esto es lo que le arreglamos y agregamos para que funcione bien en una PC de hoy.</p>
+  <div class="grid">
+    <div class="carta"><h3>Arranque y estabilidad</h3><p>Ya no se cierra solo al abrir (el "vigilante" de 2007 lo mataba si el disco iba lento), no deja procesos colgados en segundo plano y solo deja abrir un launcher y un juego a la vez.</p></div>
+    <div class="carta"><h3>Video moderno</h3><p>El motor no reconocía ninguna tarjeta de video actual. Ahora usa un perfil moderno: texturas hasta 2048 px, anisotrópico x16, sombras grandes, detalle completo a distancia y carga previa del mapa sin tirones.</p></div>
+    <div class="carta"><h3>Fluidez y red</h3><p>Reloj de 1 ms (Windows actual iba a saltos de 16 ms), red sin retrasos de "Nagle" en el combate y un servidor con cadencia exacta. Menos desfase entre jugadores.</p></div>
+    <div class="carta"><h3>Pantalla y opciones</h3><p>Resolución real de tu monitor (hasta 4K y ultrapanorámicos), frecuencia de 120/144 Hz, ventana sin borde que se puede maximizar, campo de visión 60-90 y más sonidos simultáneos.</p></div>
+    <div class="carta"><h3>Launcher nuevo</h3><p>Estilo Softnyx 2012, actualizaciones automáticas firmadas (solo baja lo que cambia), barra de carga, instalador de un clic que te guía con Radmin VPN y registro de cuentas.</p></div>
+    <div class="carta"><h3>Seguridad</h3><p>Antitrampas propio: huella de los archivos del juego, detección de programas de trampas y speedhack, contraseñas cifradas y baneos por cuenta y por PC.</p></div>
+    <div class="carta"><h3>Contenido del Rakion Latino</h3><p>Pestañas de stages del 2012, refinería clásica con sockets y gemas, grados de equipo, crías y sets del Latino, tienda de evento, estampas y letras.</p></div>
+    <div class="carta"><h3>Crías y combate</h3><p>Crías clásicas potenciadas (la araña Nak con el doble de daño, cañones y ballestas que disparan casi el doble) y +40 s en los rangos de los stages contrarreloj.</p></div>
+    <div class="carta"><h3>Bots</h3><p>El BotLatino vive en su sala "sin crías" de Combate Solo, con el set Acid Lava completo (miedo, lentitud, congelar, robo de vida) y una IA agresiva que no huye.</p></div>
+    <div class="carta"><h3>Imagen Rakion Nostalgia</h3><p>Logo propio en lugar del de Halloween, 8 pantallas de carga nuevas con consejos en español y textos "CARGANDO" y "Beta".</p></div>
+  </div>
+</div></div></section>
+
+<section id="futuro"><div class="wrap"><div class="placa revela">
+  <h2>Futuros proyectos</h2>
+  <p class="sub">Lo que viene después de la beta.</p>
+  <div class="grid">
+    <div class="carta"><h3>Temporada 1</h3><p>Reinicio de cuentas, evento de lanzamiento, pase de temporada y logros.</p></div>
+    <div class="carta"><h3>Servidor dedicado</h3><p>Un servidor propio encendido todo el día, sin VPN.</p></div>
+    <div class="carta"><h3>Clanes</h3><p>Interfaz de clanes, ranking y guerras de clanes.</p></div>
+    <div class="carta"><h3>Torneos</h3><p>Torneos semanales 1 contra 1 y por equipos, con premios del evento.</p></div>
+    <div class="carta"><h3>Mapas y modos nuevos</h3><p>Nuevas arenas y modos de evento por temporada.</p></div>
+    <div class="carta"><h3>Bots sin lag</h3><p>Bots más ligeros que corren en el servidor.</p></div>
+  </div>
+</div></div></section>
+
+<section id="faq"><div class="wrap"><div class="placa revela">
+  <h2>Preguntas</h2>
+  <details><summary>¿Es gratis?</summary><p>Sí. No hay nada que pagar y no se vende nada que dé ventaja.</p></details>
+  <details><summary>¿Por qué necesito Radmin VPN?</summary><p>En la beta el servidor está en una PC de casa. Radmin VPN crea una red privada para conectarte a ella. El instalador del juego te lo instala y te guía.</p></details>
+  <details><summary>El juego dice que mis archivos están modificados</summary><p>Pulsa RECOVER FILE en el launcher o vuelve a descomprimir el ZIP original. No edites archivos del juego.</p></details>
+  <details><summary>¿Se guarda mi avance de la beta?</summary><p>No. Todas las cuentas de la beta se borran al empezar la Temporada 1.</p></details>
+</div></div></section>
+</main>
+
+<footer class="wrap">
+  <a href="https://discord.gg/ujHwymcqG">Discord</a> · <a href="https://drive.google.com/drive/folders/1Z18BiNTMaRgSfqZAM0_v6Kxh0sniZfEe">Descarga</a>
+  <p>Rakion Nostalgia es un proyecto de fans sin fines de lucro, no afiliado a los dueños de Rakion.</p>
+</footer>
+</div>
+
+<script>
+document.documentElement.classList.add('js');
+const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------- el mundo de fondo: cielo, montanas, rios de lava, brasas y un dragon (dibujo propio) ----------
+const M = document.getElementById('mundo'), g = M.getContext('2d');
+let W = 0, H = 0, dpr = 1, brasas = [], montes = [];
+function rnd(a, b){ return a + Math.random() * (b - a); }
+function tam(){
+  dpr = Math.min(2, devicePixelRatio || 1);
+  W = innerWidth; H = innerHeight;
+  M.width = W * dpr; M.height = H * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  montes = [0, 1, 2].map(k => { const pts = []; let y = .55 + k * .1; for (let x = 0; x <= 1.0001; x += .02){ y += rnd(-.035, .035); y = Math.max(.42 + k * .1, Math.min(.72 + k * .08, y)); pts.push([x, y]); } return pts; });
+  brasas = Array.from({length: Math.round(W / 9)}, () => ({x: rnd(0, W), y: rnd(0, H), v: rnd(.3, 1.3), r: rnd(.8, 2.6), f: rnd(0, 6)}));
+}
+function dragon(t){
+  const ciclo = 26000, p = (t % ciclo) / ciclo; if (p > .55) return;
+  const x = -200 + p / .55 * (W + 400), y = H * .2 + Math.sin(p * 9) * 30, s = Math.max(.6, W / 1400), ala = Math.sin(t / 160) * .9;
+  g.save(); g.translate(x, y); g.scale(s, s); g.fillStyle = 'rgba(10,2,1,.82)';
+  g.beginPath(); g.moveTo(-90, 6); g.quadraticCurveTo(-30, -6, 40, 0); g.quadraticCurveTo(70, -2, 92, -12); g.lineTo(98, -6); g.quadraticCurveTo(76, 6, 42, 10); g.quadraticCurveTo(-20, 16, -90, 6); g.fill();
+  g.beginPath(); g.moveTo(-90, 6); g.quadraticCurveTo(-150, 0, -190, 22); g.quadraticCurveTo(-140, 8, -88, 12); g.fill();
+  for (const lado of [-1, 1]){ g.beginPath(); g.moveTo(-10, 0); g.quadraticCurveTo(-40, -90 * ala * lado - 20, -110, -120 * ala * lado); g.lineTo(-70, -40 * ala * lado); g.lineTo(-40, -70 * ala * lado); g.lineTo(-20, -20 * ala * lado); g.lineTo(20, -60 * ala * lado); g.quadraticCurveTo(20, -20 * ala * lado, 14, 0); g.fill(); }
+  g.fillStyle = 'rgba(255,120,30,.9)'; g.beginPath(); g.arc(88, -8, 2, 0, 7); g.fill();
+  g.restore();
+}
+function cuadro(t){
+  const cielo = g.createLinearGradient(0, 0, 0, H);
+  cielo.addColorStop(0, '#120403'); cielo.addColorStop(.45, '#3a0d06'); cielo.addColorStop(.75, '#7a2008'); cielo.addColorStop(1, '#ff5a14');
+  g.fillStyle = cielo; g.fillRect(0, 0, W, H);
+  const sol = g.createRadialGradient(W * .72, H * .62, 10, W * .72, H * .62, H * .55);
+  sol.addColorStop(0, 'rgba(255,170,60,.55)'); sol.addColorStop(1, 'rgba(255,90,20,0)'); g.fillStyle = sol; g.fillRect(0, 0, W, H);
+  dragon(t);
+  const colores = ['#2a0905', '#1a0503', '#0d0302'];
+  montes.forEach((pts, k) => {
+    const des = (t / (90 - k * 25)) % W;
+    g.fillStyle = colores[k]; g.beginPath(); g.moveTo(0, H);
+    for (let r = -1; r <= 1; r++) pts.forEach(([x, y]) => g.lineTo(x * W + r * W - des * (k + 1) * .05, y * H));
+    g.lineTo(W, H); g.closePath(); g.fill();
+  });
+  // rios de lava al pie
+  for (let i = 0; i < 3; i++){
+    const y = H * (.9 + i * .035), lav = g.createLinearGradient(0, y - 6, 0, y + 6);
+    lav.addColorStop(0, 'rgba(255,90,20,0)'); lav.addColorStop(.5, `rgba(255,${150 + i * 30},60,.75)`); lav.addColorStop(1, 'rgba(255,90,20,0)');
+    g.fillStyle = lav; g.beginPath(); g.moveTo(0, y);
+    for (let x = 0; x <= W; x += 20) g.lineTo(x, y + Math.sin(x / 70 + t / 700 + i) * 4);
+    g.lineTo(W, y + 10); g.lineTo(0, y + 10); g.fill();
+  }
+  for (const b of brasas){
+    b.y -= b.v; b.x += Math.sin(t / 900 + b.f) * .4; if (b.y < -10){ b.y = H + 10; b.x = rnd(0, W); }
+    const a = Math.min(1, b.y / H * 1.3);
+    g.fillStyle = `rgba(255,${120 + (b.f * 22 | 0)},40,${a * .85})`; g.beginPath(); g.arc(b.x, b.y, b.r, 0, 7); g.fill();
+  }
+  g.fillStyle = 'rgba(8,2,1,.35)'; g.fillRect(0, 0, W, H);
+  if (!quieto) requestAnimationFrame(cuadro);
+}
+tam(); addEventListener('resize', tam); requestAnimationFrame(cuadro);
+
+// ---------- arte de las cartas (dibujos propios) ----------
+function arte(cv){
+  const w = cv.width = (cv.offsetWidth || 300) * 2, h = cv.height = 260, x = cv.getContext('2d'), tipo = cv.dataset.arte;
+  const f = x.createLinearGradient(0, 0, w, h); f.addColorStop(0, '#4a1007'); f.addColorStop(1, '#120403'); x.fillStyle = f; x.fillRect(0, 0, w, h);
+  const halo = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, h * .7); halo.addColorStop(0, 'rgba(255,140,40,.45)'); halo.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = halo; x.fillRect(0, 0, w, h);
+  x.translate(w / 2, h / 2);
+  const oro = '#ffd36a', lava = '#ff6a1a', azul = '#59b4ff', piedra = '#8a5a40';
+  const espada = (a, c) => { x.save(); x.rotate(a); x.fillStyle = c; x.fillRect(-5, -86, 10, 118); x.fillRect(-24, 28, 48, 9); x.fillRect(-6, 37, 12, 24); x.beginPath(); x.moveTo(-5, -86); x.lineTo(0, -102); x.lineTo(5, -86); x.fill(); x.restore(); };
+  const gema = (cx, cy, r, lados, c) => { x.fillStyle = c; x.beginPath(); for (let i = 0; i < lados; i++){ const a = i / lados * 6.283 - 1.57; x.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } x.closePath(); x.fill(); x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.arc(cx - r * .3, cy - r * .3, r * .25, 0, 7); x.fill(); };
+  if (tipo === 'solo') for (let i = 0; i < 4; i++) espada(i * 1.5708 + .4, i % 2 ? oro : lava);
+  if (tipo === 'equipo'){ espada(-.5, lava); espada(.5, azul); }
+  if (tipo === 'lider'){ espada(-.6, lava); espada(.6, azul); x.fillStyle = oro; x.beginPath(); x.moveTo(-46, -54); x.lineTo(-28, -88); x.lineTo(-10, -60); x.lineTo(0, -94); x.lineTo(10, -60); x.lineTo(28, -88); x.lineTo(46, -54); x.closePath(); x.fill(); }
+  if (tipo === 'golem'){ x.fillStyle = piedra; x.fillRect(-44, -66, 88, 100); x.fillRect(-78, -44, 30, 78); x.fillRect(48, -44, 30, 78); x.fillStyle = oro; x.fillRect(-24, -40, 14, 11); x.fillRect(10, -40, 14, 11); x.fillStyle = '#6a4030'; x.fillRect(-38, 34, 26, 44); x.fillRect(12, 34, 26, 44); }
+  if (tipo === 'stage'){ x.strokeStyle = oro; x.lineWidth = 7; x.beginPath(); x.moveTo(-76, 80); x.lineTo(-76, -20); x.arc(0, -20, 76, Math.PI, 0); x.lineTo(76, 80); x.stroke(); x.fillStyle = lava; for (let i = 0; i < 3; i++){ x.beginPath(); x.arc(-32 + i * 32, 24, 8, 0, 7); x.fill(); } }
+  if (tipo === 'refineria'){ x.fillStyle = '#3a2a24'; x.fillRect(-70, 30, 140, 36); x.fillRect(-46, 10, 92, 24); x.save(); x.rotate(-.6); x.fillStyle = piedra; x.fillRect(-8, -90, 16, 90); x.fillStyle = '#c9c0b0'; x.fillRect(-34, -110, 68, 30); x.restore(); x.fillStyle = oro; x.font = '900 52px Cinzel, serif'; x.textAlign = 'center'; x.fillText('+20', 60, -40); }
+  if (tipo === 'gemas'){ gema(-80, 0, 34, 24, '#ff5a5a'); gema(0, 0, 34, 4, '#59b4ff'); gema(80, 0, 34, 6, '#6ee08a'); }
+  if (tipo === 'crias'){ x.fillStyle = '#c8a060'; x.beginPath(); x.ellipse(0, 20, 54, 44, 0, 0, 7); x.fill(); x.beginPath(); x.arc(0, -40, 34, 0, 7); x.fill(); x.fillStyle = lava; x.beginPath(); x.moveTo(-30, -60); x.lineTo(0, -112); x.lineTo(30, -60); x.fill(); x.fillStyle = '#1a0503'; x.fillRect(-16, -46, 10, 8); x.fillRect(6, -46, 10, 8); }
+  if (tipo === 'bots'){ x.fillStyle = '#6a7080'; x.fillRect(-40, -70, 80, 66); x.fillStyle = lava; x.fillRect(-26, -48, 18, 12); x.fillRect(8, -48, 18, 12); x.fillStyle = '#4a505c'; x.fillRect(-56, 2, 112, 70); x.strokeStyle = oro; x.lineWidth = 5; x.beginPath(); x.moveTo(0, -70); x.lineTo(0, -96); x.stroke(); x.fillStyle = oro; x.beginPath(); x.arc(0, -100, 8, 0, 7); x.fill(); }
+  if (tipo === 'escudo'){ x.fillStyle = oro; x.beginPath(); x.moveTo(0, -96); x.lineTo(80, -64); x.lineTo(68, 40); x.lineTo(0, 96); x.lineTo(-68, 40); x.lineTo(-80, -64); x.closePath(); x.fill(); x.fillStyle = '#2a0905'; x.beginPath(); x.moveTo(0, -74); x.lineTo(60, -50); x.lineTo(50, 30); x.lineTo(0, 74); x.lineTo(-50, 30); x.lineTo(-60, -50); x.closePath(); x.fill(); x.strokeStyle = '#6ee08a'; x.lineWidth = 12; x.beginPath(); x.moveTo(-26, 0); x.lineTo(-6, 22); x.lineTo(30, -24); x.stroke(); }
+  if (tipo === 'tienda'){ x.fillStyle = '#5a1a0c'; x.fillRect(-90, -40, 180, 110); x.fillStyle = lava; for (let i = 0; i < 6; i++) x.fillRect(-90 + i * 30, -70, 30, 34); x.fillStyle = oro; x.beginPath(); x.arc(-40, 20, 16, 0, 7); x.fill(); x.beginPath(); x.arc(0, 20, 16, 0, 7); x.fill(); x.beginPath(); x.arc(40, 20, 16, 0, 7); x.fill(); }
+}
+document.querySelectorAll('canvas[data-arte]').forEach(arte);
+
+// sello del BotLatino
+(() => {
+  const s = document.getElementById('sello'), k = s.getContext('2d'), R = 280; k.translate(R, R);
+  const rg = k.createRadialGradient(0, 0, 20, 0, 0, R); rg.addColorStop(0, '#6a1608'); rg.addColorStop(1, '#120403');
+  k.fillStyle = rg; k.beginPath(); k.arc(0, 0, R - 4, 0, 7); k.fill();
+  k.strokeStyle = '#ffd36a'; k.lineWidth = 10; k.beginPath(); k.arc(0, 0, R - 26, 0, 7); k.stroke();
+  for (let i = 0; i < 24; i++){ k.save(); k.rotate(i * Math.PI / 12); k.fillStyle = i % 2 ? '#ff6a1a' : '#ffd36a'; k.fillRect(-5, -R + 38, 10, 26); k.restore(); }
+  k.fillStyle = '#ff6a1a'; k.beginPath(); k.moveTo(0, -164); k.lineTo(120, -98); k.lineTo(104, 66); k.lineTo(0, 164); k.lineTo(-104, 66); k.lineTo(-120, -98); k.closePath(); k.fill();
+  k.fillStyle = '#1a0605'; k.beginPath(); k.moveTo(0, -130); k.lineTo(92, -80); k.lineTo(80, 50); k.lineTo(0, 130); k.lineTo(-80, 50); k.lineTo(-92, -80); k.closePath(); k.fill();
+  k.fillStyle = '#ffd36a'; k.font = '900 128px Cinzel, Georgia, serif'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('+20', 0, 8);
+})();
+
+// aparicion suave de las placas al bajar (visibles desde el inicio si no hay soporte)
+if ('IntersectionObserver' in window && !quieto){
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.remove('fuera'); io.unobserve(e.target); } }), {rootMargin: '0px 0px -8% 0px'});
+  document.querySelectorAll('.revela').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('fuera'); io.observe(el); } });
+}
+</script>
+</body>
+</html>
